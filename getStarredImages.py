@@ -3,6 +3,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 SELECTED_IMAGES = 'selected_file_names.txt'
+SELECTED_FOLDER_NAME = 'selected_images'
 
 # get all images from a directory
 def getImages(directory):
@@ -33,7 +34,7 @@ def getImageDetails(image_file):
 
 
 # return images with star rating
-def getStarredImages(directory):
+def getStarredImages(directory, options = None):
     stared_images = []
     image_files = getImages(directory)
     # print image name and star count
@@ -45,6 +46,14 @@ def getStarredImages(directory):
                 # print(image_file, metadata['Rating'])
                 if metadata['Rating'] > 0:
                     stared_images.append(image_file)
+                    # if options and options['move'] == True move selected images to a SELECTED_FOLDER_NAME
+                    if options and options['move'] == True:
+                        # create a directory to move selected images
+                        selected_folder = os.path.join(directory, SELECTED_FOLDER_NAME)
+                        if not os.path.exists(selected_folder):
+                            os.mkdir(selected_folder)
+                        # move selected images to selected folder
+                        os.rename(image_file, os.path.join(selected_folder, os.path.basename(image_file)))
     return stared_images
 
 # write a file with the list of images
@@ -59,7 +68,11 @@ def writeImageList(directory, filenames):
 def main():
     print('Enter q to quit')
     while True:
+        options = {'move' : False}
         directory = input('Enter directory: ')
+        move_images = input(f'Move images to {SELECTED_FOLDER_NAME}  folder? (y/n): ')
+        if move_images.lower() == 'y':
+            options['move'] = True
         # if q is entered, quit
         if directory == 'q':
             break
@@ -67,7 +80,7 @@ def main():
         if not os.path.exists(directory):
             print('Directory does not exist\n')
             continue
-        stared_images = getStarredImages(directory)
+        stared_images = getStarredImages(directory, options)
         print('Number of stared images: ', len(stared_images))
         writeImageList(directory, stared_images)
         print('=====Done=====\n')
