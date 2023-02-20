@@ -4,6 +4,7 @@ from PIL.ExifTags import TAGS
 
 SELECTED_IMAGES = 'selected_file_names.txt'
 SELECTED_FOLDER_NAME = 'selected_images'
+MIN_STAR_COUNT = 2 # windows photos app adds 4 stars when marked as favorite
 
 # get all images from a directory
 def getImages(directory):
@@ -44,7 +45,7 @@ def getStarredImages(directory, options = None):
             # print rating stars
             if 'Rating' in metadata:
                 # print(image_file, metadata['Rating'])
-                if metadata['Rating'] > 0:
+                if metadata['Rating'] >= MIN_STAR_COUNT:
                     stared_images.append(image_file)
                     # if options and options['move'] == True move selected images to a SELECTED_FOLDER_NAME
                     if options and options['move'] == True:
